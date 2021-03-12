@@ -34,8 +34,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut webview = web_view::builder()
         .title("Emoji Picker")
         .content(page_content)
-        .size(620, 480)
+        .size(535, 665)
         .resizable(true)
+        .frameless(false)
         .user_data(())
         .invoke_handler(|webview, arg| {
             if arg.contains("COPY_EMOJI") {
