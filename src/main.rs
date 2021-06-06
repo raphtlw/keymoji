@@ -59,9 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .debug(true)
         .build()?;
 
-    if scale_factor > 1.0 {
-        webview.set_zoom_level(scale_factor);
-    }
+    webview.set_zoom_level(scale_factor);
 
     thread::spawn(move || {
         let mut sys = sysinfo::System::new_all();
