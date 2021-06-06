@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     if scale_factor > 1.0 {
-        webview.set_zoom_level(1.25);
+        webview.set_zoom_level(scale_factor);
     }
 
     thread::spawn(move || {
@@ -81,13 +81,13 @@ fn set_floating_window_i3() -> Result<(), Box<dyn std::error::Error>> {
     let wmctrl_list_output = Shell::cmd("wmctrl -lp");
     let wmctrl_list_output_lines = wmctrl_list_output.split("\n").collect::<Vec<&str>>();
 
-    println!("wmctrl_list_output_lines: {:?}", wmctrl_list_output_lines);
+    // println!("wmctrl_list_output_lines: {:?}", wmctrl_list_output_lines);
 
     if let Some(line) = wmctrl_list_output_lines
         .iter()
         .find(|&s| s.contains("Emoji Picker"))
     {
-        println!("{}", line);
+        // println!("{}", line);
         let winid = line.split(" ").collect::<Vec<&str>>()[0];
         Shell::cmd(&format!("wmctrl -ia {}", winid)); // focus on window
         Shell::cmd("i3-msg floating enable");
