@@ -3,7 +3,7 @@ use std::process::{Command, Stdio};
 pub enum Shell {}
 
 impl Shell {
-    pub fn cmd(cmd: String) -> String {
+    pub fn cmd<'a>(cmd: &'a str) -> String {
         let output = Command::new("sh")
             .arg("-c")
             .arg(cmd)

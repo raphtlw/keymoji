@@ -4,6 +4,7 @@ use util::*;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use std::{thread, time::Duration};
+use sysinfo::SystemExt;
 use web_view::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -49,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 thread::sleep(Duration::from_millis(10));
 
-                let paste_cmd = Shell::cmd(String::from("xdotool key ctrl+v"));
+                let paste_cmd = Shell::cmd("xdotool key ctrl+v");
                 println!("{}", paste_cmd);
             }
 
@@ -58,9 +59,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .debug(true)
         .build()?;
 
-    webview.set_zoom_level(scale_factor);
+    if scale_factor > 1.0 {
+        webview.set_zoom_level(1.25);
+    }
+
+    thread::spawn(move || {
+        let mut sys = sysinfo::System::new_all();
+        sys.refresh_processes();
+        // check if i3 is running
+        if !sys.get_process_by_name("i3").is_empty() {
+            set_floating_window_i3().unwrap();
+        }
+    });
 
     webview.run()?;
+
+    Ok(())
+}
+
+fn set_floating_window_i3() -> Result<(), Box<dyn std::error::Error>> {
+    let wmctrl_list_output = Shell::cmd("wmctrl -lp");
+    let wmctrl_list_output_lines = wmctrl_list_output.split("\n").collect::<Vec<&str>>();
+
+    println!("wmctrl_list_output_lines: {:?}", wmctrl_list_output_lines);
+
+    if let Some(line) = wmctrl_list_output_lines
+        .iter()
+        .find(|&s| s.contains("Emoji Picker"))
+    {
+        println!("{}", line);
+        let winid = line.split(" ").collect::<Vec<&str>>()[0];
+        Shell::cmd(&format!("wmctrl -ia {}", winid)); // focus on window
+        Shell::cmd("i3-msg floating enable");
+    }
 
     Ok(())
 }
